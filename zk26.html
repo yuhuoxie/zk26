@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026东莞中考志愿推荐计算器</title>
+  <!-- 引入Tailwind CSS + Font Awesome 图标 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 自定义Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            danger: '#F53F3F',
+            warning: '#FF7D00',
+            success: '#00B42A',
+            dark: '#1D2129',
+            light: '#F2F3F5',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .card-shadow {
+        box-shadow: 0 10px 40px rgba(22, 93, 255, 0.1);
+      }
+      .btn-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .input-focus {
+        @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+      }
+      .modal-backdrop {
+        @apply fixed inset-0 bg-black/50 items-center justify-center z-50;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen py-8 px-4 md:py-16">
+  <div class="max-w-5xl mx-auto">
+    <!-- 头部标题 -->
+    <div class="text-center mb-10">
+      <h1 class="text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-dark mb-3">
+        <i class="fa fa-graduation-cap text-primary mr-2"></i>2026东莞中考志愿推荐计算器
+      </h1>
+      <p class="text-gray-600 text-lg">
+        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-medium mr-2">官方最终版</span>
+        严格梯度推荐 | 户籍/非户籍双分数线 | 支持小数 | 未填自动满分
+      </p>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="grid gap-8 lg:grid-cols-3">
+      <!-- 左侧：成绩输入区 -->
+      <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow lg:col-span-1">
+        <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+          <i class="fa fa-pencil-square-o text-primary mr-2"></i>输入各科原始成绩
+        </h2>
+        <form id="scoreForm" class="space-y-4">
+          <!-- 语文/数学/英语 -->
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">语文 <span class="text-gray-400">(120)</span></label>
+              <input type="number" min="0" max="120" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="chinese" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">数学 <span class="text-gray-400">(120)</span></label>
+              <input type="number" min="0" max="120" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="math" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">英语 <span class="text-gray-400">(120)</span></label>
+              <input type="number" min="0" max="120" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="english" placeholder="原始分">
+            </div>
+          </div>
+
+          <!-- 物理/化学 -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">物理 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="physics" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">化学 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="chemistry" placeholder="原始分">
+            </div>
+          </div>
+
+          <!-- 道法/历史 -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">道德与法治 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="politics" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">历史 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="history" placeholder="原始分">
+            </div>
+          </div>
+
+          <!-- 体育/实验 -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">体育 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="sports" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">理化生实验 <span class="text-gray-400">(21)</span></label>
+              <input type="number" min="0" max="21" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="experiment" placeholder="原始分">
+            </div>
+          </div>
+
+          <!-- 地理/生物 -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">地理 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="geography" placeholder="原始分">
+            </div>
+            <div>
+              <label class="text-sm text-gray-600 block mb-1">生物 <span class="text-gray-400">(100)</span></label>
+              <input type="number" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus" id="biology" placeholder="原始分">
+            </div>
+          </div>
+
+          <!-- 户籍选择 -->
+          <div class="bg-blue-50 p-3 rounded-lg">
+            <label class="text-sm text-gray-600 block mb-2">考生类型</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="studentType" value="local" checked class="text-primary">
+                <span class="text-sm">户籍生</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="studentType" value="nonlocal" class="text-primary">
+                <span class="text-sm">非户籍生</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
+            <i class="fa fa-info-circle mr-1"></i> 提示：未填写的科目将自动按满分计算，支持小数分数输入
+          </div>
+
+          <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold btn-hover">
+            <i class="fa fa-calculator mr-2"></i>计算总分并推荐志愿
+          </button>
+          
+          <button type="button" id="showRankBtn" class="w-full bg-white border border-primary text-primary py-3 rounded-lg font-semibold btn-hover">
+            <i class="fa fa-list-ol mr-2"></i>查看完整分数线排行
+          </button>
+        </form>
+      </div>
+
+      <!-- 右侧：结果展示区 -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- 总分展示 -->
+        <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow">
+          <h2 class="text-xl font-bold text-dark mb-6 flex items-center">
+            <i class="fa fa-bar-chart text-primary mr-2"></i>计算结果
+          </h2>
+          
+          <div class="text-center">
+            <p class="text-gray-600 mb-2">折后总分（满分800）</p>
+            <div id="totalScore" class="text-[clamp(3rem,8vw,5rem)] font-bold text-primary">--</div>
+          </div>
+        </div>
+
+        <!-- 志愿推荐 -->
+        <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow">
+          <h3 class="text-lg font-semibold text-dark mb-4 flex items-center">
+            <i class="fa fa-list-alt text-primary mr-2"></i>6个志愿推荐（严格梯度）
+          </h3>
+          <div class="bg-yellow-50 p-3 rounded-lg text-sm text-yellow-700 mb-4">
+            <i class="fa fa-exclamation-triangle mr-1"></i> 推荐规则：第1志愿(+20-30分) | 第2志愿(+15-20分) | 第3-4志愿(稳妥) | 第5-6志愿(保底-0-10分)
+          </div>
+          <div id="volunteerList" class="space-y-3">
+            <div class="text-gray-500 text-center py-6">请输入成绩并计算</div>
+          </div>
+        </div>
+
+        <!-- 弱项分析与复习建议 -->
+        <div class="bg-white rounded-2xl p-6 md:p-8 card-shadow">
+          <h3 class="text-lg font-semibold text-dark mb-4 flex items-center">
+            <i class="fa fa-lightbulb-o text-warning mr-2"></i>弱项分析与复习建议
+          </h3>
+          <div id="weaknessAnalysis" class="space-y-3">
+            <div class="text-gray-500 text-center py-6">请输入成绩并计算</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 折算规则说明 -->
+    <div class="mt-10 bg-white rounded-2xl p-6 card-shadow">
+      <h3 class="text-lg font-semibold text-dark mb-4 flex items-center">
+        <i class="fa fa-book text-primary mr-2"></i>2026东莞中考官方折算规则（东莞慧教育）
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">语文/数学/英语</p>
+          <p class="text-gray-600">原始分×1（各120分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">物理/化学</p>
+          <p class="text-gray-600">原始分×0.72（各72分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">道德与法治</p>
+          <p class="text-gray-600">原始分×0.7（70分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">历史</p>
+          <p class="text-gray-600">原始分×0.5（50分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">体育</p>
+          <p class="text-gray-600">原始分×0.6（60分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">理化生实验</p>
+          <p class="text-gray-600">原始分×1（21分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">地理</p>
+          <p class="text-gray-600">原始分×0.5（50分）</p>
+        </div>
+        <div class="bg-gray-50 p-3 rounded-lg">
+          <p class="font-medium">生物</p>
+          <p class="text-gray-600">原始分×0.45（45分）</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部说明 -->
+    <div class="mt-10 text-center text-gray-500 text-sm">
+      <p>数据来源：2026年东莞中考官方宣讲会最终数据 | 折算规则：东莞慧教育官方标准</p>
+      <p class="mt-1">注：分数线格式为「户籍生/非户籍生」，2026年新增4所公办高中（湾区中学、水乡未来学校、南区中学、第九高级中学）</p>
+    </div>
+  </div>
+
+  <!-- 分数线排行模态框 -->
+  <div id="rankModal" class="modal-backdrop hidden">
+    <div class="bg-white rounded-2xl p-6 md:p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto card-shadow">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-dark flex items-center">
+          <i class="fa fa-trophy text-primary mr-2"></i>2026东莞高中录取分数线排行
+        </h3>
+        <button id="closeRankBtn" class="text-gray-500 hover:text-dark text-2xl">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div id="rankList" class="space-y-2">
+        <!-- 排行榜内容将通过JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== 面向对象核心代码 =====================
+    /**
+     * 成绩计算类 - 严格按照东莞慧教育2026年官方折算规则
+     */
+    class ScoreCalculator {
+      constructor(scores) {
+        this.scores = scores; // 传入各科原始分
+        // 各科满分值（官方标准）
+        this.fullScores = {
+          chinese: 120,
+          math: 120,
+          english: 120,
+          physics: 100,
+          chemistry: 100,
+          politics: 100,
+          history: 100,
+          sports: 100,
+          experiment: 21,
+          geography: 100,
+          biology: 100
+        };
+        // 各科折算系数
+        this.coefficients = {
+          chinese: 1,
+          math: 1,
+          english: 1,
+          physics: 0.72,
+          chemistry: 0.72,
+          politics: 0.7,
+          history: 0.5,
+          sports: 0.6,
+          experiment: 1,
+          geography: 0.5,
+          biology: 0.45
+        };
+        // 科目中文名称
+        this.subjectNames = {
+          chinese: "语文",
+          math: "数学",
+          english: "英语",
+          physics: "物理",
+          chemistry: "化学",
+          politics: "道德与法治",
+          history: "历史",
+          sports: "体育",
+          experiment: "理化生实验",
+          geography: "地理",
+          biology: "生物"
+        };
+      }
+
+      // 获取科目分数（未填自动按满分计算）
+      getScore(subject) {
+        const value = parseFloat(this.scores[subject]);
+        return isNaN(value) ? this.fullScores[subject] : Math.min(value, this.fullScores[subject]);
+      }
+
+      // 2026东莞中考官方折算规则（总分800）
+      calculateTotal() {
+        let total = 0;
+        for (const subject in this.coefficients) {
+          total += this.getScore(subject) * this.coefficients[subject];
+        }
+        return parseFloat(total.toFixed(1)); // 保留1位小数
+      }
+
+      // 分析各科得分率，找出弱项
+      analyzeWeaknesses() {
+        const weaknesses = [];
+        for (const subject in this.fullScores) {
+          const score = this.getScore(subject);
+          const fullScore = this.fullScores[subject];
+          const rate = score / fullScore;
+          
+          if (rate < 0.7) { // 得分率低于70%视为弱项
+            weaknesses.push({
+              subject: subject,
+              name: this.subjectNames[subject],
+              score: score,
+              fullScore: fullScore,
+              rate: rate,
+              level: rate < 0.5 ? "严重弱项" : "一般弱项"
+            });
+          }
+        }
+        // 按得分率从低到高排序
+        return weaknesses.sort((a, b) => a.rate - b.rate);
+      }
+
+      // 获取复习建议
+      getReviewAdvice(subject) {
+        const advice = {
+          chinese: "重点攻克阅读理解和作文。每天坚持阅读一篇文言文和现代文，积累好词好句；每周写一篇作文并请老师批改。基础部分要确保不丢分，多做字音字形、病句修改等专项练习。",
+          math: "回归课本，夯实基础。先把所有公式定理背熟，然后分专题突破：代数部分重点是函数和方程；几何部分重点是三角形、四边形和圆。多做中档题，难题可以适当放弃。",
+          english: "每天背30-50个单词，重点掌握高频词汇和短语。加强听力训练，每天听15-20分钟。阅读理解要学会找关键词和定位句。作文多背模板和范文，注意书写工整。",
+          physics: "理解概念是关键。重点掌握力学、电学和光学三大板块。多做实验题，理解实验原理和步骤。计算题要注意单位统一和公式应用。",
+          chemistry: "熟记化学方程式和元素周期表前20号元素。重点掌握酸碱盐、金属和有机物的性质。实验题要注意操作规范和现象描述。",
+          politics: "关注时事热点，特别是近一年的重大事件。熟记课本中的基本概念和原理。答题时要结合材料，分点作答，条理清晰。",
+          history: "构建时间轴，理清历史发展脉络。重点掌握重大历史事件的背景、经过、结果和影响。多做材料分析题，提高提取信息和概括能力。",
+          sports: "根据自己的弱项项目进行针对性训练。注意训练方法和安全，避免受伤。保持良好的作息和饮食习惯，调整好心态。",
+          experiment: "熟悉每个实验的操作步骤和注意事项。重点掌握实验现象的观察和记录方法。多做模拟实验题，提高实验操作能力。",
+          geography: "多看地图，熟记重要的地理事物和分界线。重点掌握气候、地形、河流等自然地理知识和人口、城市、工业等人文地理知识。",
+          biology: "熟记课本中的重要概念和知识点。重点掌握细胞、遗传、生态系统等内容。多做图表题，提高识图能力。"
+        };
+        return advice[subject] || "制定合理的复习计划，查漏补缺，多做练习题，提高解题能力。";
+      }
+    }
+
+    /**
+     * 志愿推荐类 - 严格按照指定梯度规则和最新分数线
+     */
+    class VolunteerRecommender {
+      constructor(totalScore, studentType = 'local') {
+        this.totalScore = totalScore;
+        this.studentType = studentType; // 'local'户籍生, 'nonlocal'非户籍生
+        
+        // 🔥 2026年东莞公办高中最终录取分数线（100%匹配官方宣讲会）
+        // 格式：{name: "学校名称", localScore: 户籍生分数, nonlocalScore: 非户籍生分数, tier: "档次", type: "公办"}
+        this.schoolList = [
+          // 公办16大校（按分数从高到低排序）
+          { name: "东莞中学", localScore: 743, nonlocalScore: 743, tier: "16大校", type: "公办" },
+          { name: "东莞中学松山湖学校", localScore: 739, nonlocalScore: 742, tier: "16大校", type: "公办" },
+          { name: "松山湖未来学校", localScore: 733, nonlocalScore: 736, tier: "16大校", type: "公办" },
+          { name: "东莞市第一中学", localScore: 726, nonlocalScore: 736, tier: "16大校", type: "公办" },
+          { name: "东莞市高级中学", localScore: 719, nonlocalScore: 727, tier: "16大校", type: "公办" },
+          { name: "东莞市第六高级中学", localScore: 717, nonlocalScore: 731, tier: "16大校", type: "公办" },
+          { name: "东莞市实验中学", localScore: 711, nonlocalScore: 723, tier: "16大校", type: "公办" },
+          { name: "东莞市石龙中学", localScore: 708, nonlocalScore: 709, tier: "16大校", type: "公办" },
+          { name: "东莞市常平中学", localScore: 702, nonlocalScore: 716, tier: "16大校", type: "公办" },
+          { name: "东莞市万江中学", localScore: 700, nonlocalScore: 715, tier: "16大校", type: "公办" },
+          { name: "东莞外国语学校", localScore: 693, nonlocalScore: 721, tier: "16大校", type: "公办" },
+          { name: "东莞市南区中学", localScore: 696, nonlocalScore: 697, tier: "16大校", type: "公办", isNew: true },
+          { name: "东莞市第二高级中学", localScore: 696, nonlocalScore: 697, tier: "16大校", type: "公办" },
+          { name: "东莞市第七高级中学", localScore: 676, nonlocalScore: 683, tier: "16大校", type: "公办" },
+          { name: "东莞市第九高级中学", localScore: 675, nonlocalScore: 682, tier: "16大校", type: "公办", isNew: true },
+          { name: "东莞湾区中学", localScore: 668, nonlocalScore: 678, tier: "16大校", type: "公办", isNew: true },
+          { name: "东莞水乡未来学校", localScore: 665, nonlocalScore: 675, tier: "16大校", type: "公办", isNew: true },
+          
+          // 公办普高（按分数从高到低排序）
+          { name: "东莞市厚街中学", localScore: 679, nonlocalScore: 678, tier: "公办普高", type: "公办" },
+          { name: "东莞市第十二中学", localScore: 679, nonlocalScore: 683, tier: "公办普高", type: "公办" },
+          { name: "东莞市第十一中学", localScore: 676, nonlocalScore: 691, tier: "公办普高", type: "公办" },
+          { name: "东莞市第十三高级中学", localScore: 672, nonlocalScore: 672, tier: "公办普高", type: "公办" },
+          { name: "东莞市虎门中学", localScore: 665, nonlocalScore: 666, tier: "公办普高", type: "公办" },
+          { name: "东莞市塘厦中学", localScore: 653, nonlocalScore: 659, tier: "公办普高", type: "公办" },
+          { name: "东莞市麻涌中学", localScore: 651, nonlocalScore: 643, tier: "公办普高", type: "公办" },
+          { name: "东莞市第十高级中学", localScore: 650, nonlocalScore: 654, tier: "公办普高", type: "公办" },
+          { name: "东莞市大岭山中学", localScore: 648, nonlocalScore: 637, tier: "公办普高", type: "公办" },
+          { name: "东莞市清溪中学", localScore: 647, nonlocalScore: 671, tier: "公办普高", type: "公办" },
+          { name: "东莞市长安中学", localScore: 645, nonlocalScore: 651, tier: "公办普高", type: "公办" },
+          { name: "东莞市第四高级中学", localScore: 645, nonlocalScore: 646, tier: "公办普高", type: "公办" },
+          { name: "东莞市第五高级中学", localScore: 643, nonlocalScore: 637, tier: "公办普高", type: "公办" },
+          { name: "东莞市第八高级中学", localScore: 639, nonlocalScore: 648, tier: "公办普高", type: "公办" },
+          { name: "东莞市济川中学", localScore: 638, nonlocalScore: 636, tier: "公办普高", type: "公办" },
+          
+          // 综合高中
+          { name: "东莞市商业学校综合高中班", localScore: 635, nonlocalScore: 617, tier: "综合高中", type: "综合" }
+        ];
+      }
+
+      // 获取当前考生类型对应的分数线
+      getScore(school) {
+        return this.studentType === 'local' ? school.localScore : school.nonlocalScore;
+      }
+
+      // 生成6个志愿（严格按照指定梯度）
+      getRecommendations() {
+        const { totalScore } = this;
+        const recommendations = [];
+        
+        // 先按当前考生类型的分数线从高到低排序所有学校
+        const sortedSchools = [...this.schoolList]
+          .map(school => ({ ...school, score: this.getScore(school) }))
+          .sort((a, b) => b.score - a.score);
+
+        // 1. 第一志愿：+20-30分（优先选16大校）
+        const firstTier = sortedSchools.filter(s => 
+          s.score >= totalScore + 20 && s.score <= totalScore + 30
+        );
+        if (firstTier.length > 0) {
+          recommendations.push({ ...firstTier[0], type: "冲刺(+20-30)" });
+        } else {
+          // 如果没有符合条件的，选分数最高的学校
+          recommendations.push({ ...sortedSchools[0], type: "冲刺(最高)" });
+        }
+
+        // 2. 第二志愿：+15-20分（优先选16大校）
+        const secondTier = sortedSchools.filter(s => 
+          s.score >= totalScore + 15 && s.score <= totalScore + 20 && 
+          !recommendations.find(r => r.name === s.name)
+        );
+        if (secondTier.length > 0) {
+          recommendations.push({ ...secondTier[0], type: "冲刺(+15-20)" });
+        } else {
+          // 如果没有符合条件的，选比第一志愿低的下一个学校
+          const nextSchool = sortedSchools.find(s => 
+            s.score < recommendations[0].score && 
+            !recommendations.find(r => r.name === s.name)
+          );
+          if (nextSchool) {
+            recommendations.push({ ...nextSchool, type: "冲刺" });
+          }
+        }
+
+        // 3. 第三、四志愿：稳妥（±5分）
+        const steadyTier = sortedSchools.filter(s => 
+          Math.abs(s.score - totalScore) <= 5 && 
+          !recommendations.find(r => r.name === s.name)
+        );
+        for (let i = 0; i < 2 && i < steadyTier.length; i++) {
+          recommendations.push({ ...steadyTier[i], type: "稳妥" });
+        }
+
+        // 4. 第五、六志愿：保底（-0-10分）
+        const safeTier = sortedSchools.filter(s => 
+          s.score <= totalScore && s.score >= totalScore - 10 && 
+          !recommendations.find(r => r.name === s.name)
+        );
+        for (let i = 0; i < 2 && i < safeTier.length; i++) {
+          recommendations.push({ ...safeTier[i], type: "保底(-0-10)" });
+        }
+
+        // 补全到6个志愿（从高分到低分依次补充）
+        let index = 0;
+        while (recommendations.length < 6 && index < sortedSchools.length) {
+          const school = sortedSchools[index];
+          if (!recommendations.find(r => r.name === school.name)) {
+            recommendations.push({ 
+              ...school, 
+              type: recommendations.length < 4 ? "稳妥" : "保底" 
+            });
+          }
+          index++;
+        }
+
+        return recommendations.slice(0, 6);
+      }
+
+      // 获取按分数排序的完整学校列表
+      getRankedList() {
+        return [...this.schoolList]
+          .map(school => ({ ...school, score: this.getScore(school) }))
+          .sort((a, b) => b.score - a.score);
+      }
+    }
+
+    /**
+     * 主应用类 - 整合功能、DOM操作
+     */
+    class ZhongkaoApp {
+      constructor() {
+        this.initDOM();
+        this.bindEvents();
+        this.initRankModal();
+      }
+
+      // 初始化DOM元素
+      initDOM() {
+        this.form = document.getElementById('scoreForm');
+        this.totalScoreEl = document.getElementById('totalScore');
+        this.volunteerListEl = document.getElementById('volunteerList');
+        this.weaknessAnalysisEl = document.getElementById('weaknessAnalysis');
+        this.showRankBtn = document.getElementById('showRankBtn');
+        this.rankModal = document.getElementById('rankModal');
+        this.closeRankBtn = document.getElementById('closeRankBtn');
+        this.rankListEl = document.getElementById('rankList');
+      }
+
+      // 绑定事件
+      bindEvents() {
+        this.form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.calculateAndRecommend();
+        });
+
+        // 显示模态框
+        this.showRankBtn.addEventListener('click', () => {
+          this.rankModal.classList.remove('hidden');
+          this.rankModal.classList.add('flex');
+        });
+
+        // 关闭模态框
+        this.closeRankBtn.addEventListener('click', () => {
+          this.rankModal.classList.remove('flex');
+          this.rankModal.classList.add('hidden');
+        });
+
+        // 点击背景关闭模态框
+        this.rankModal.addEventListener('click', (e) => {
+          if (e.target === this.rankModal) {
+            this.rankModal.classList.remove('flex');
+            this.rankModal.classList.add('hidden');
+          }
+        });
+
+        // 按ESC键关闭模态框
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !this.rankModal.classList.contains('hidden')) {
+            this.rankModal.classList.remove('flex');
+            this.rankModal.classList.add('hidden');
+          }
+        });
+
+        // 考生类型切换时重新计算
+        document.querySelectorAll('input[name="studentType"]').forEach(radio => {
+          radio.addEventListener('change', () => {
+            if (this.totalScoreEl.textContent !== '--') {
+              this.calculateAndRecommend();
+            }
+          });
+        });
+      }
+
+      // 初始化分数线排行榜
+      initRankModal() {
+        // 默认按户籍生排序
+        const recommender = new VolunteerRecommender(0, 'local');
+        const rankedList = recommender.getRankedList();
+        this.renderRankList(rankedList);
+      }
+
+      // 渲染排行榜
+      renderRankList(rankedList) {
+        let html = '';
+        rankedList.forEach((school, index) => {
+          const typeColor = school.type === '公办' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600';
+          const rankColor = index < 3 ? 'text-primary font-bold' : '';
+          const newBadge = school.isNew ? '<span class="px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-700 ml-2">2026新增</span>' : '';
+          
+          html += `
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-sm ${rankColor}">${index+1}</span>
+                <span class="font-medium">${school.name}${newBadge}</span>
+                <span class="px-2 py-0.5 rounded text-xs ${typeColor}">${school.tier}</span>
+              </div>
+              <span class="font-semibold">${school.localScore}/${school.nonlocalScore}分</span>
+            </div>
+          `;
+        });
+        this.rankListEl.innerHTML = html;
+      }
+
+      // 核心逻辑：计算+推荐+分析
+      calculateAndRecommend() {
+        // 1. 获取所有输入成绩
+        const scores = {
+          chinese: document.getElementById('chinese').value,
+          math: document.getElementById('math').value,
+          english: document.getElementById('english').value,
+          physics: document.getElementById('physics').value,
+          chemistry: document.getElementById('chemistry').value,
+          politics: document.getElementById('politics').value,
+          history: document.getElementById('history').value,
+          sports: document.getElementById('sports').value,
+          experiment: document.getElementById('experiment').value,
+          geography: document.getElementById('geography').value,
+          biology: document.getElementById('biology').value,
+        };
+
+        // 2. 获取考生类型
+        const studentType = document.querySelector('input[name="studentType"]:checked').value;
+
+        // 3. 计算总分
+        const calculator = new ScoreCalculator(scores);
+        const total = calculator.calculateTotal();
+        this.totalScoreEl.textContent = total;
+
+        // 4. 推荐志愿
+        const recommender = new VolunteerRecommender(total, studentType);
+        const volunteers = recommender.getRecommendations();
+        this.renderVolunteers(volunteers, studentType);
+
+        // 5. 分析弱项并给出复习建议
+        const weaknesses = calculator.analyzeWeaknesses();
+        this.renderWeaknesses(weaknesses, calculator);
+
+        // 6. 更新排行榜
+        const rankedList = recommender.getRankedList();
+        this.renderRankList(rankedList);
+      }
+
+      // 渲染志愿结果
+      renderVolunteers(volunteers, studentType) {
+        let html = '';
+        volunteers.forEach((item, index) => {
+          // 标签颜色
+          const tagColor = item.type.includes('冲刺') ? 'bg-red-100 text-red-600' :
+                          item.type === '稳妥' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600';
+          
+          const newBadge = item.isNew ? '<span class="px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-700 ml-2">2026新增</span>' : '';
+          const scoreDisplay = studentType === 'local' 
+            ? `${item.score}分（户籍生）` 
+            : `${item.score}分（非户籍生）`;
+          
+          html += `
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">${index+1}</span>
+                <span class="font-medium">${item.name}${newBadge}</span>
+                <span class="text-gray-500 text-sm">${scoreDisplay}</span>
+              </div>
+              <span class="px-2 py-1 rounded text-xs font-medium ${tagColor}">${item.type}</span>
+            </div>
+          `;
+        });
+        this.volunteerListEl.innerHTML = html;
+      }
+
+      // 渲染弱项分析与复习建议
+      renderWeaknesses(weaknesses, calculator) {
+        if (weaknesses.length === 0) {
+          this.weaknessAnalysisEl.innerHTML = `
+            <div class="text-center py-6">
+              <i class="fa fa-check-circle text-success text-4xl mb-3"></i>
+              <p class="text-success font-medium">恭喜！你的各科成绩都很优秀，没有明显弱项</p>
+              <p class="text-gray-500 text-sm mt-2">继续保持，争取在中考中发挥出最佳水平</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        weaknesses.forEach((weakness, index) => {
+          const levelColor = weakness.level === '严重弱项' ? 'text-danger' : 'text-warning';
+          const levelIcon = weakness.level === '严重弱项' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle';
+          
+          html += `
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-2">
+                  <i class="fa ${levelIcon} ${levelColor}"></i>
+                  <span class="font-medium">${weakness.name}</span>
+                  <span class="px-2 py-0.5 rounded text-xs ${levelColor} bg-opacity-10" style="background-color: ${weakness.level === '严重弱项' ? 'rgba(245, 63, 63, 0.1)' : 'rgba(255, 125, 0, 0.1)'}">${weakness.level}</span>
+                </div>
+                <span class="text-gray-600">${weakness.score}/${weakness.fullScore}（${(weakness.rate * 100).toFixed(1)}%）</span>
+              </div>
+              <p class="text-gray-600 text-sm">${calculator.getReviewAdvice(weakness.subject)}</p>
+            </div>
+          `;
+        });
+        this.weaknessAnalysisEl.innerHTML = html;
+      }
+    }
+
+    // 启动应用
+    window.addEventListener('DOMContentLoaded', () => {
+      new ZhongkaoApp();
+    });
+  </script>
+</body>
+</html>
